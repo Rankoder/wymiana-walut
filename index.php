@@ -2,9 +2,9 @@
 
 require_once 'vendor/autoload.php';
 
+use src\Application\Controller\CurrencyExchangeController;
 use src\Domain\Repository\InMemoryExchangeRateRepository;
-use src\Application\Service\CurrencyExchangeService;
-use src\Infrastructure\Controller\CurrencyExchangeController;
+use src\Domain\Service\CurrencyExchangeService;
 
 // Set up dependencies
 $exchangeRateRepository = new InMemoryExchangeRateRepository();

@@ -1,14 +1,14 @@
 <?php
 
-namespace src\Application\Service;
+namespace src\Domain\Service;
 
-use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Repository\ExchangeRateRepository;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
 use Money\Exchange\FixedExchange;
 use Money\Formatter\DecimalMoneyFormatter;
 use Money\Money;
+use src\Domain\Entity\CurrencyExchange;
+use src\Domain\Repository\ExchangeRateRepository;
 
 /**
  * Class CurrencyExchangeService

@@ -3,11 +3,9 @@
 namespace tests\Integration;
 
 use PHPUnit\Framework\TestCase;
-use src\Application\Service\CurrencyExchangeService;
+use src\Application\Controller\CurrencyExchangeController;
 use src\Domain\Repository\InMemoryExchangeRateRepository;
-use src\Infrastructure\Controller\CurrencyExchangeController;
-use Money\Currency;
-use Money\Money;
+use src\Domain\Service\CurrencyExchangeService;
 
 /**
  * Class CurrencyExchangeIntegrationTest

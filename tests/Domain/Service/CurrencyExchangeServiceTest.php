@@ -1,13 +1,13 @@
 <?php
 
-namespace tests\Application\Service;
+namespace Tests\Domain\Service;
 
-use PHPUnit\Framework\TestCase;
-use src\Application\Service\CurrencyExchangeService;
-use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Repository\ExchangeRateRepository;
 use Money\Currency;
 use Money\Money;
+use PHPUnit\Framework\TestCase;
+use src\Domain\Entity\CurrencyExchange;
+use src\Domain\Repository\ExchangeRateRepository;
+use src\Domain\Service\CurrencyExchangeService;
 
 /**
  * Class CurrencyExchangeServiceTest

@@ -1,14 +1,14 @@
 <?php
 
-namespace tests\Infrastructure\Controller;
+namespace Tests\Application\Controller;
 
-use PHPUnit\Framework\TestCase;
-use src\Application\Service\CurrencyExchangeService;
-use src\Infrastructure\Controller\CurrencyExchangeController;
-use src\Domain\Entity\CurrencyExchange;
+use Exception;
 use Money\Currency;
 use Money\Money;
-use Exception;
+use PHPUnit\Framework\TestCase;
+use src\Application\Controller\CurrencyExchangeController;
+use src\Domain\Entity\CurrencyExchange;
+use src\Domain\Service\CurrencyExchangeService;
 
 /**
  * Class CurrencyExchangeControllerTest

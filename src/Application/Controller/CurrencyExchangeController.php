@@ -1,12 +1,12 @@
 <?php
 
-namespace src\Infrastructure\Controller;
+namespace src\Application\Controller;
 
-use src\Application\Service\CurrencyExchangeService;
-use src\Domain\Entity\CurrencyExchange;
+use Exception;
 use Money\Currency;
 use Money\Money;
-use Exception;
+use src\Domain\Entity\CurrencyExchange;
+use src\Domain\Service\CurrencyExchangeService;
 
 /**
  * Class CurrencyExchangeController
