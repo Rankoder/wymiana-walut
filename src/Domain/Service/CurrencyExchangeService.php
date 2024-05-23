@@ -41,7 +41,7 @@ class CurrencyExchangeService
 
     private function getExchangeRate(CurrencyExchange $currencyExchange): string
     {
-        return $this->exchangeRateRepository->getExchangeRate($currencyExchange->getFromCurrency(), $currencyExchange->getToCurrency());
+        return (string)$this->exchangeRateRepository->getExchangeRate($currencyExchange->getFromCurrency(), $currencyExchange->getToCurrency());
     }
 
     private function getConverter(CurrencyExchange $currencyExchange, string $exchangeRate): Converter
@@ -63,8 +63,8 @@ class CurrencyExchangeService
 
     private function applyFee(Money $moneyWithoutFee, bool $isBuyer): Money
     {
-        $buyerFee = $this->feePercentageRepository->getBuyerFeePercentage();
-        $sellerFee = $this->feePercentageRepository->getSellerFeePercentage();
+        $buyerFee = (int)$this->feePercentageRepository->getBuyerFeePercentage();
+        $sellerFee = (int)$this->feePercentageRepository->getSellerFeePercentage();
         list($buyerAmount, $sellerAmount) = $moneyWithoutFee->allocate([$buyerFee, $sellerFee]);
 
         return $isBuyer ? $buyerAmount : $moneyWithoutFee->add($sellerAmount);

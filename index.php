@@ -21,7 +21,7 @@ echo "Customer buys 100 GBP with EUR: ";
 echo $currencyExchangeController->convert('GBP', 'EUR', '100', true) . "</br>"; // MoneyDTO amount in smallest unit (cents)
 
 echo "Customer sells 100 GBP for EUR: ";
-echo $currencyExchangeController->convert('GBP', 'EUR', '100', false) . "\n"; // MoneyDTO amount in smallest unit (cents)
+echo $currencyExchangeController->convert('GBP', 'EUR', '100', false) . "</br>"; // MoneyDTO amount in smallest unit (cents)
 
 echo "Customer buys 100 EUR with GBP: ";
-echo $currencyExchangeController->convert('EUR', 'GBP', '100', true) . "\n"; // MoneyDTO amount in smallest unit (cents)
+echo $currencyExchangeController->convert('EUR', 'GBP', '100', true) . "</br>"; // MoneyDTO amount in smallest unit (cents)
