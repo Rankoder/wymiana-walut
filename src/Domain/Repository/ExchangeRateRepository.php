@@ -11,5 +11,12 @@ use Money\Currency;
  */
 interface ExchangeRateRepository
 {
+    /**
+     * Gets the exchange rate for a given currency pair.
+     *
+     * @param Currency $fromCurrency
+     * @param Currency $toCurrency
+     * @return float
+     */
     public function getExchangeRate(Currency $fromCurrency, Currency $toCurrency): float;
 }

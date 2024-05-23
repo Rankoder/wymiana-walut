@@ -3,6 +3,7 @@
 namespace src\Domain\Repository;
 
 use Money\Currency;
+use InvalidArgumentException;
 
 /**
  * Class InMemoryExchangeRateRepository
@@ -13,16 +14,29 @@ class InMemoryExchangeRateRepository implements ExchangeRateRepository
 {
     private array $exchangeRates;
 
+    /**
+     * InMemoryExchangeRateRepository constructor.
+     *
+     * Loads exchange rates from configuration.
+     */
     public function __construct()
     {
-        $this->exchangeRates = [
-            'EUR' => ['GBP' => 1],
-            'GBP' => ['EUR' => 1.5432],
-        ];
+        $config = require __DIR__ . '/../../Config/config.php';
+        $this->exchangeRates = $config['exchange_rates'];
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getExchangeRate(Currency $fromCurrency, Currency $toCurrency): float
     {
-        return $this->exchangeRates[$fromCurrency->getCode()][$toCurrency->getCode()];
+        $fromCode = $fromCurrency->getCode();
+        $toCode = $toCurrency->getCode();
+
+        if (!isset($this->exchangeRates[$fromCode][$toCode])) {
+            throw new InvalidArgumentException("Exchange rate not found for {$fromCode} to {$toCode}.");
+        }
+
+        return $this->exchangeRates[$fromCode][$toCode];
     }
 }
