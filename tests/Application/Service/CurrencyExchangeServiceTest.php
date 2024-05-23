@@ -25,7 +25,9 @@ class CurrencyExchangeServiceTest extends TestCase
         $this->currencyExchangeService = new CurrencyExchangeService($this->exchangeRateRepositoryMock);
     }
 
-
+    /**
+     * @dataProvider conversionDataProvider
+     */
     #[\PHPUnit\Framework\Attributes\DataProvider('conversionDataProvider')]
     public function testConvert(string $fromCurrency, string $toCurrency, string $amount, bool $isBuyer, string $expectedResult)
     {
@@ -47,10 +49,16 @@ class CurrencyExchangeServiceTest extends TestCase
     public static function conversionDataProvider(): array
     {
         return [
-            'Klient sprzedaje 100 EUR za GBP' => ['EUR', 'GBP', '100', false, '158.35'],
-            'Klient kupuje 100 GBP za EUR' => ['GBP', 'EUR', '100', true, '152.78'],
-            'Klient sprzedaje 100 GBP za EUR' => ['GBP', 'EUR', '100', false, '155.86'],
-            'Klient kupuje 100 EUR za GBP' => ['EUR', 'GBP', '100', true, '155.21'],
+            'Customer sells 100 EUR for GBP' => ['EUR', 'GBP', '100', false, '158.35'],
+            'Customer buys 100 GBP with EUR' => ['GBP', 'EUR', '100', true, '152.78'],
+            'Customer sells 100 GBP for EUR' => ['GBP', 'EUR', '100', false, '155.86'],
+            'Customer buys 100 EUR with GBP' => ['EUR', 'GBP', '100', true, '155.21'],
+            'Customer sells 0.01 EUR for GBP' => ['EUR', 'GBP', '0.01', false, '0.02'], // Small amount
+            'Customer buys 0.01 GBP with EUR' => ['GBP', 'EUR', '0.01', true, '0.02'], // Small amount
+            'Customer sells 99999999 EUR for GBP' => ['EUR', 'GBP', '99999999', false, '158347798.41'], // Large amount
+            'Customer buys 99999999 GBP with EUR' => ['GBP', 'EUR', '99999999', true, '152776798.48'], // Large amount
+            'Customer sells 1.123456789 EUR for GBP' => ['EUR', 'GBP', '1.123456789', false, '1.78'], // High precision amount
+            'Customer buys 1.987654321 GBP with EUR' => ['GBP', 'EUR', '1.987654321', true, '3.03'], // High precision amount
         ];
     }
 

@@ -48,10 +48,10 @@ class CurrencyExchangeControllerTest extends TestCase
     public static function conversionDataProvider(): array
     {
         return [
-            'Klient sprzedaje 100 EUR za GBP' => ['EUR', 'GBP', '100', false, '158.35'],
-            'Klient kupuje 100 GBP za EUR' => ['GBP', 'EUR', '100', true, '152.78'],
-            'Klient sprzedaje 100 GBP za EUR' => ['GBP', 'EUR', '100', false, '155.86'],
-            'Klient kupuje 100 EUR za GBP' => ['EUR', 'GBP', '100', true, '155.21'],
+            'Client selling 100 EUR for GBP' => ['EUR', 'GBP', '100', false, '158.35'],
+            'Client buying 100 GBP for EUR' => ['GBP', 'EUR', '100', true, '152.78'],
+            'Client selling 100 GBP for EUR' => ['GBP', 'EUR', '100', false, '155.86'],
+            'Client buying 100 EUR for GBP' => ['EUR', 'GBP', '100', true, '155.21'],
         ];
     }
 
