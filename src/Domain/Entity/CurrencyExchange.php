@@ -2,9 +2,10 @@
 
 namespace src\Domain\Entity;
 
+use InvalidArgumentException;
 use Money\Currency;
 use Money\Money;
-use InvalidArgumentException;
+use src\Application\DTO\MoneyDTO;
 
 /**
  * Class CurrencyExchange
@@ -21,7 +22,7 @@ class CurrencyExchange
     /**
      * CurrencyExchange constructor.
      *
-     * @param Money $amount
+     * @param MoneyDTO $amount
      * @param Currency $fromCurrency
      * @param Currency $toCurrency
      * @param bool $isBuyer
@@ -40,7 +41,7 @@ class CurrencyExchange
     }
 
     /**
-     * @return Money
+     * @return MoneyDTO
      */
     public function getAmount(): Money
     {

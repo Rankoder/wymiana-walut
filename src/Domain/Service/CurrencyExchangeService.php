@@ -3,7 +3,7 @@
 namespace src\Domain\Service;
 
 use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Entity\CurrencyExchangeDTO;
+use src\Application\DTO\MoneyDTO;
 use src\Domain\Repository\ExchangeRateRepository;
 use src\Domain\Repository\FeePercentageRepository;
 use Money\Converter;
@@ -28,7 +28,7 @@ class CurrencyExchangeService
         $this->feePercentageRepository = $feePercentageRepository;
     }
 
-    public function convert(CurrencyExchange $currencyExchange): CurrencyExchangeDTO
+    public function convert(CurrencyExchange $currencyExchange): MoneyDTO
     {
         $exchangeRate = $this->getExchangeRate($currencyExchange);
         $converter = $this->getConverter($currencyExchange, $exchangeRate);
@@ -36,7 +36,7 @@ class CurrencyExchangeService
         $finalAmount = $this->applyFee($moneyWithoutFee, $currencyExchange->isBuyer());
         $formattedAmount = $this->formatMoney($finalAmount);
 
-        return new CurrencyExchangeDTO($finalAmount, $formattedAmount);
+        return new MoneyDTO($finalAmount, $formattedAmount);
     }
 
     private function getExchangeRate(CurrencyExchange $currencyExchange): string

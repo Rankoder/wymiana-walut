@@ -1,15 +1,15 @@
 <?php
 
-namespace src\Domain\Entity;
+namespace src\Application\DTO;
 
 use Money\Money;
 
 /**
- * Class CurrencyExchangeDTO
+ * Class MoneyDTO
  *
- * Data Transfer Object for currency exchange operations.
+ * Data Transfer Object for money values.
  */
-class CurrencyExchangeDTO
+class MoneyDTO
 {
     private Money $amount;
     private string $formattedAmount;

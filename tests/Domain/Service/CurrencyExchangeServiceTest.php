@@ -1,11 +1,11 @@
 <?php
 
-namespace tests\Domain\Service;
+namespace tests\Application\Service;
 
 use PHPUnit\Framework\TestCase;
 use src\Domain\Service\CurrencyExchangeService;
 use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Entity\CurrencyExchangeDTO;
+use src\Application\DTO\MoneyDTO;
 use src\Domain\Repository\ExchangeRateRepository;
 use src\Domain\Repository\FeePercentageRepository;
 use Money\Currency;
@@ -44,7 +44,7 @@ class CurrencyExchangeServiceTest extends TestCase
         $amountMoney = new Money($amountInSmallestUnit, $fromCurrencyObj);
         $currencyExchange = new CurrencyExchange($amountMoney, $fromCurrencyObj, $toCurrencyObj, $isBuyer);
 
-        $dto = new CurrencyExchangeDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
+        $dto = new MoneyDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
 
         $this->exchangeRateRepositoryMock->method('getExchangeRate')
             ->with($fromCurrencyObj, $toCurrencyObj)

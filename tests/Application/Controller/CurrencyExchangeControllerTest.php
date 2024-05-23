@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use src\Domain\Service\CurrencyExchangeService;
 use src\Application\Controller\CurrencyExchangeController;
 use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Entity\CurrencyExchangeDTO;
+use src\Application\DTO\MoneyDTO;
 use Money\Currency;
 use Money\Money;
 use Exception;
@@ -39,7 +39,7 @@ class CurrencyExchangeControllerTest extends TestCase
         $amountMoney = new Money($amountInSmallestUnit, $fromCurrencyObj);
         $currencyExchange = new CurrencyExchange($amountMoney, $fromCurrencyObj, $toCurrencyObj, $isBuyer);
 
-        $dto = new CurrencyExchangeDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
+        $dto = new MoneyDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
 
         $this->currencyExchangeServiceMock->expects($this->once())
             ->method('convert')
