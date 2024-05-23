@@ -15,9 +15,9 @@ interface ExchangeRateRepository
     /**
      * Gets the exchange rate for a given currency pair.
      *
-     * @param Currency $fromCurrency
-     * @param Currency $toCurrency
-     * @return float
+     * @param Currency $fromCurrency The currency to convert from
+     * @param Currency $toCurrency The currency to convert to
+     * @return float The exchange rate between the two currencies
      */
     public function getExchangeRate(Currency $fromCurrency, Currency $toCurrency): float;
 }

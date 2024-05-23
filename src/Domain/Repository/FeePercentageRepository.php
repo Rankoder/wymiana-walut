@@ -13,14 +13,14 @@ interface FeePercentageRepository
     /**
      * Gets the fee percentage for buyers.
      *
-     * @return int
+     * @return int The fee percentage for buyers
      */
     public function getBuyerFeePercentage(): int;
 
     /**
      * Gets the fee percentage for sellers.
      *
-     * @return int
+     * @return int The fee percentage for sellers
      */
     public function getSellerFeePercentage(): int;
 }

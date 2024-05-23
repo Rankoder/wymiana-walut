@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace tests\Application\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use src\Application\Controller\CurrencyExchangeController;
 use src\Application\DTO\MoneyDTO;
@@ -11,11 +12,26 @@ use src\Domain\Entity\CurrencyExchange;
 use Money\Currency;
 use Money\Money;
 
+/**
+ * Class CurrencyExchangeControllerTest
+ *
+ * Unit tests for CurrencyExchangeController.
+ */
 class CurrencyExchangeControllerTest extends TestCase
 {
+    /**
+     * @var CurrencyExchangeService|\PHPUnit\Framework\MockObject\MockObject Mock service for currency exchange
+     */
     private CurrencyExchangeService $currencyExchangeServiceMock;
+
+    /**
+     * @var CurrencyExchangeController The controller being tested
+     */
     private CurrencyExchangeController $controller;
 
+    /**
+     * Sets up the test environment.
+     */
     protected function setUp(): void
     {
         $this->currencyExchangeServiceMock = $this->createMock(CurrencyExchangeService::class);
@@ -23,10 +39,20 @@ class CurrencyExchangeControllerTest extends TestCase
     }
 
     /**
-     * @throws \Exception
+     * Tests the convert method.
+     *
+     * @param string $fromCurrencyCode The source currency code
+     * @param string $toCurrencyCode The target currency code
+     * @param string $amount The amount to convert
+     * @param bool $isBuyer Whether the conversion is for a buyer
+     * @param string $expectedAmount The expected converted amount
+     * @param string $expectedCurrencyCode The expected currency code
+     *
+     * @throws \Exception If an error occurs during conversion
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('convertDataProvider')]
-    public function testConvert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer, string $expectedAmount, string $expectedCurrencyCode): void
+    #[DataProvider('convertDataProvider')]
+    public function testConvert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer,
+                                string $expectedAmount, string $expectedCurrencyCode): void
     {
         $amountInSmallestUnit = bcmul($amount, '100', 0);
         $money = new Money($amountInSmallestUnit, new Currency($fromCurrencyCode));
@@ -34,7 +60,7 @@ class CurrencyExchangeControllerTest extends TestCase
 
         $this->currencyExchangeServiceMock
             ->method('convert')
-            ->with($currencyExchange)
+            ->with($this->equalTo($currencyExchange))
             ->willReturn([$expectedAmount, $expectedCurrencyCode]);
 
         $result = $this->controller->convert($fromCurrencyCode, $toCurrencyCode, $amount, $isBuyer);
@@ -44,6 +70,11 @@ class CurrencyExchangeControllerTest extends TestCase
         $this->assertEquals($expectedCurrencyCode, $result->getCode());
     }
 
+    /**
+     * Provides data for the testConvert method.
+     *
+     * @return array The data sets for the testConvert method
+     */
     public static function convertDataProvider(): array
     {
         return [
@@ -54,6 +85,9 @@ class CurrencyExchangeControllerTest extends TestCase
         ];
     }
 
+    /**
+     * Tests that the convert method throws an exception.
+     */
     public function testConvertThrowsException(): void
     {
         $this->currencyExchangeServiceMock

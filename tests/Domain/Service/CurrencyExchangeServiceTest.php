@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace tests\Domain\Service;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use src\Domain\Entity\CurrencyExchange;
 use src\Domain\Repository\ExchangeRateRepository;
@@ -11,12 +12,31 @@ use src\Domain\Service\CurrencyExchangeService;
 use Money\Currency;
 use Money\Money;
 
+/**
+ * Class CurrencyExchangeServiceTest
+ *
+ * Unit tests for CurrencyExchangeService.
+ */
 class CurrencyExchangeServiceTest extends TestCase
 {
+    /**
+     * @var ExchangeRateRepository|\PHPUnit\Framework\MockObject\MockObject Mock repository for exchange rates
+     */
     private $exchangeRateRepositoryMock;
+
+    /**
+     * @var FeePercentageRepository|\PHPUnit\Framework\MockObject\MockObject Mock repository for fee percentages
+     */
     private $feePercentageRepositoryMock;
+
+    /**
+     * @var CurrencyExchangeService The service being tested
+     */
     private $service;
 
+    /**
+     * Sets up the test environment.
+     */
     protected function setUp(): void
     {
         $this->exchangeRateRepositoryMock = $this->createMock(ExchangeRateRepository::class);
@@ -24,8 +44,20 @@ class CurrencyExchangeServiceTest extends TestCase
         $this->service = new CurrencyExchangeService($this->exchangeRateRepositoryMock, $this->feePercentageRepositoryMock);
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('currencyExchangeProvider')]
-    public function testConvert($fromCurrencyCode, $toCurrencyCode, $amount, $isBuyer, $expectedAmount, $expectedCurrencyCode)
+    /**
+     * Tests the convert method.
+     *
+     * @param string $fromCurrencyCode The source currency code
+     * @param string $toCurrencyCode The target currency code
+     * @param string $amount The amount to convert
+     * @param bool $isBuyer Whether the conversion is for a buyer
+     * @param string $expectedAmount The expected converted amount
+     * @param string $expectedCurrencyCode The expected currency code
+     *
+     */
+    #[DataProvider('currencyExchangeProvider')]
+    public function testConvert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer,
+                                string $expectedAmount, string $expectedCurrencyCode): void
     {
         $currencyExchange = new CurrencyExchange(
             new Money(bcmul($amount, '100', 0), new Currency($fromCurrencyCode)),
@@ -59,6 +91,11 @@ class CurrencyExchangeServiceTest extends TestCase
         $this->assertEquals($expectedCurrencyCode, $currencyCode);
     }
 
+    /**
+     * Provides data for the testConvert method.
+     *
+     * @return array The data sets for the testConvert method
+     */
     public static function currencyExchangeProvider(): array
     {
         return [
@@ -75,7 +112,10 @@ class CurrencyExchangeServiceTest extends TestCase
         ];
     }
 
-    public function testConvertThrowsException()
+    /**
+     * Tests that the convert method throws an exception.
+     */
+    public function testConvertThrowsException(): void
     {
         $this->exchangeRateRepositoryMock
             ->method('getExchangeRate')

@@ -17,10 +17,14 @@ use Exception;
  */
 class CurrencyExchangeController
 {
-    /** @var CurrencyExchangeService Service responsible for exchange currencies */
+    /**
+     * @var CurrencyExchangeService Service responsible for exchange currencies
+     */
     private CurrencyExchangeService $currencyExchangeService;
 
     /**
+     * CurrencyExchangeController constructor.
+     *
      * @param CurrencyExchangeService $currencyExchangeService
      */
     public function __construct(CurrencyExchangeService $currencyExchangeService)
@@ -28,6 +32,18 @@ class CurrencyExchangeController
         $this->currencyExchangeService = $currencyExchangeService;
     }
 
+    /**
+     * Converts an amount from one currency to another.
+     *
+     * @param string $fromCurrencyCode The currency code to convert from
+     * @param string $toCurrencyCode The currency code to convert to
+     * @param string $amount The amount to convert
+     * @param bool $isBuyer Whether the conversion is for a buyer
+     *
+     * @return MoneyDTO The converted amount and currency code
+     *
+     * @throws Exception If an error occurs during conversion
+     */
     public function convert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer): MoneyDTO
     {
         try {
@@ -38,7 +54,7 @@ class CurrencyExchangeController
 
             return new MoneyDTO($formattedAmount, $currencyCode);
         } catch (Exception $e) {
-            throw new Exception("Error: " . $e->getMessage());
+            throw new Exception("Error: " . $e->getMessage(), $e->getCode(), $e);
         }
     }
 }
