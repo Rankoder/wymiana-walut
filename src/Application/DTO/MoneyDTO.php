@@ -1,8 +1,7 @@
 <?php
+declare(strict_types=1);
 
 namespace src\Application\DTO;
-
-use Money\Money;
 
 /**
  * Class MoneyDTO
@@ -11,22 +10,22 @@ use Money\Money;
  */
 class MoneyDTO
 {
-    private Money $amount;
-    private string $formattedAmount;
+    private string $amount;
+    private string $code;
 
-    public function __construct(Money $amount, string $formattedAmount)
+    public function __construct(string $amount, string $code)
     {
         $this->amount = $amount;
-        $this->formattedAmount = $formattedAmount;
+        $this->code = $code;
     }
 
-    public function getAmount(): Money
+    public function getAmount(): string
     {
         return $this->amount;
     }
 
-    public function getFormattedAmount(): string
+    public function getCode(): string
     {
-        return $this->formattedAmount;
+        return $this->code;
     }
 }

@@ -1,78 +1,68 @@
 <?php
+declare(strict_types=1);
 
 namespace tests\Application\Controller;
 
 use PHPUnit\Framework\TestCase;
-use src\Domain\Service\CurrencyExchangeService;
 use src\Application\Controller\CurrencyExchangeController;
-use src\Domain\Entity\CurrencyExchange;
 use src\Application\DTO\MoneyDTO;
+use src\Domain\Service\CurrencyExchangeService;
+use src\Domain\Entity\CurrencyExchange;
 use Money\Currency;
 use Money\Money;
-use Exception;
 
-/**
- * Class CurrencyExchangeControllerTest
- *
- * Unit tests for CurrencyExchangeController.
- */
 class CurrencyExchangeControllerTest extends TestCase
 {
-    private $currencyExchangeServiceMock;
-    private CurrencyExchangeController $currencyExchangeController;
+    private CurrencyExchangeService $currencyExchangeServiceMock;
+    private CurrencyExchangeController $controller;
 
     protected function setUp(): void
     {
         $this->currencyExchangeServiceMock = $this->createMock(CurrencyExchangeService::class);
-        $this->currencyExchangeController = new CurrencyExchangeController($this->currencyExchangeServiceMock);
+        $this->controller = new CurrencyExchangeController($this->currencyExchangeServiceMock);
     }
 
     /**
-     * @dataProvider conversionDataProvider
+     * @throws \Exception
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('conversionDataProvider')]
-    public function testConvert(string $fromCurrency, string $toCurrency, string $amount, bool $isBuyer, string $expectedResult)
+    #[\PHPUnit\Framework\Attributes\DataProvider('convertDataProvider')]
+    public function testConvert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer, string $expectedAmount, string $expectedCurrencyCode): void
     {
-        $fromCurrencyObj = new Currency($fromCurrency);
-        $toCurrencyObj = new Currency($toCurrency);
         $amountInSmallestUnit = bcmul($amount, '100', 0);
-        $amountMoney = new Money($amountInSmallestUnit, $fromCurrencyObj);
-        $currencyExchange = new CurrencyExchange($amountMoney, $fromCurrencyObj, $toCurrencyObj, $isBuyer);
+        $money = new Money($amountInSmallestUnit, new Currency($fromCurrencyCode));
+        $currencyExchange = new CurrencyExchange($money, new Currency($fromCurrencyCode), new Currency($toCurrencyCode), $isBuyer);
 
-        $dto = new MoneyDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
-
-        $this->currencyExchangeServiceMock->expects($this->once())
+        $this->currencyExchangeServiceMock
             ->method('convert')
             ->with($currencyExchange)
-            ->willReturn($dto);
+            ->willReturn([$expectedAmount, $expectedCurrencyCode]);
 
-        $result = $this->currencyExchangeController->convert($fromCurrency, $toCurrency, $amount, $isBuyer);
+        $result = $this->controller->convert($fromCurrencyCode, $toCurrencyCode, $amount, $isBuyer);
 
-        $this->assertEquals($expectedResult, $result);
+        $this->assertInstanceOf(MoneyDTO::class, $result);
+        $this->assertEquals($expectedAmount, $result->getAmount());
+        $this->assertEquals($expectedCurrencyCode, $result->getCode());
     }
 
-    public static function conversionDataProvider(): array
+    public static function convertDataProvider(): array
     {
         return [
-            'Customer sells 100 EUR for GBP' => ['EUR', 'GBP', '100', false, '158.35'],
-            'Customer buys 100 GBP with EUR' => ['GBP', 'EUR', '100', true, '152.78'],
-            'Customer sells 100 GBP for EUR' => ['GBP', 'EUR', '100', false, '155.86'],
-            'Customer buys 100 EUR with GBP' => ['EUR', 'GBP', '100', true, '155.21'],
+            ['USD', 'EUR', '100.00', true, '85.00', 'EUR'],
+            ['EUR', 'USD', '100.00', false, '115.00', 'USD'],
+            ['GBP', 'USD', '50.00', true, '70.00', 'USD'],
+            ['JPY', 'USD', '1000.00', false, '9.50', 'USD'],
         ];
     }
 
-    public function testConvertHandlesException()
+    public function testConvertThrowsException(): void
     {
-        $fromCurrency = 'EUR';
-        $toCurrency = 'GBP';
-        $amount = '100';
-        $isBuyer = true;
+        $this->currencyExchangeServiceMock
+            ->method('convert')
+            ->will($this->throwException(new \Exception('Conversion error')));
 
-        $this->currencyExchangeServiceMock->method('convert')
-            ->will($this->throwException(new Exception('Conversion error')));
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Error: Conversion error');
 
-        $result = $this->currencyExchangeController->convert($fromCurrency, $toCurrency, $amount, $isBuyer);
-
-        $this->assertStringContainsString('Error: Conversion error', $result);
+        $this->controller->convert('USD', 'EUR', '100.00', true);
     }
 }

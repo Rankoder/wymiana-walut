@@ -1,7 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace src\Application\Controller;
 
+use src\Application\DTO\MoneyDTO;
 use src\Domain\Service\CurrencyExchangeService;
 use src\Domain\Entity\CurrencyExchange;
 use Money\Currency;
@@ -15,24 +17,28 @@ use Exception;
  */
 class CurrencyExchangeController
 {
+    /** @var CurrencyExchangeService Service responsible for exchange currencies */
     private CurrencyExchangeService $currencyExchangeService;
 
+    /**
+     * @param CurrencyExchangeService $currencyExchangeService
+     */
     public function __construct(CurrencyExchangeService $currencyExchangeService)
     {
         $this->currencyExchangeService = $currencyExchangeService;
     }
 
-    public function convert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer): string
+    public function convert(string $fromCurrencyCode, string $toCurrencyCode, string $amount, bool $isBuyer): MoneyDTO
     {
         try {
             $amountInSmallestUnit = bcmul($amount, '100', 0);
             $amountMoney = new Money($amountInSmallestUnit, new Currency($fromCurrencyCode));
             $currencyExchange = new CurrencyExchange($amountMoney, new Currency($fromCurrencyCode), new Currency($toCurrencyCode), $isBuyer);
-            $dto = $this->currencyExchangeService->convert($currencyExchange);
+            [$formattedAmount, $currencyCode] = $this->currencyExchangeService->convert($currencyExchange);
 
-            return $dto->getFormattedAmount();
+            return new MoneyDTO($formattedAmount, $currencyCode);
         } catch (Exception $e) {
-            return "Error: " . $e->getMessage();
+            throw new Exception("Error: " . $e->getMessage());
         }
     }
 }
