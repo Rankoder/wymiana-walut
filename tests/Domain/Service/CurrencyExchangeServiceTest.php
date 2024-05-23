@@ -1,13 +1,15 @@
 <?php
 
-namespace Tests\Domain\Service;
+namespace tests\Domain\Service;
 
+use PHPUnit\Framework\TestCase;
+use src\Domain\Service\CurrencyExchangeService;
+use src\Domain\Entity\CurrencyExchange;
+use src\Domain\Entity\CurrencyExchangeDTO;
+use src\Domain\Repository\ExchangeRateRepository;
+use src\Domain\Repository\FeePercentageRepository;
 use Money\Currency;
 use Money\Money;
-use PHPUnit\Framework\TestCase;
-use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Repository\ExchangeRateRepository;
-use src\Domain\Service\CurrencyExchangeService;
 
 /**
  * Class CurrencyExchangeServiceTest
@@ -18,11 +20,16 @@ class CurrencyExchangeServiceTest extends TestCase
 {
     private CurrencyExchangeService $currencyExchangeService;
     private $exchangeRateRepositoryMock;
+    private $feePercentageRepositoryMock;
 
     protected function setUp(): void
     {
         $this->exchangeRateRepositoryMock = $this->createMock(ExchangeRateRepository::class);
-        $this->currencyExchangeService = new CurrencyExchangeService($this->exchangeRateRepositoryMock);
+        $this->feePercentageRepositoryMock = $this->createMock(FeePercentageRepository::class);
+        $this->currencyExchangeService = new CurrencyExchangeService($this->exchangeRateRepositoryMock, $this->feePercentageRepositoryMock);
+
+        $this->feePercentageRepositoryMock->method('getBuyerFeePercentage')->willReturn(99);
+        $this->feePercentageRepositoryMock->method('getSellerFeePercentage')->willReturn(1);
     }
 
     /**
@@ -37,13 +44,15 @@ class CurrencyExchangeServiceTest extends TestCase
         $amountMoney = new Money($amountInSmallestUnit, $fromCurrencyObj);
         $currencyExchange = new CurrencyExchange($amountMoney, $fromCurrencyObj, $toCurrencyObj, $isBuyer);
 
+        $dto = new CurrencyExchangeDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
+
         $this->exchangeRateRepositoryMock->method('getExchangeRate')
             ->with($fromCurrencyObj, $toCurrencyObj)
             ->willReturn($this->getMockedExchangeRate($fromCurrency, $toCurrency));
 
         $result = $this->currencyExchangeService->convert($currencyExchange);
 
-        $this->assertEquals($expectedResult, $result);
+        $this->assertEquals($expectedResult, $result->getFormattedAmount());
     }
 
     public static function conversionDataProvider(): array

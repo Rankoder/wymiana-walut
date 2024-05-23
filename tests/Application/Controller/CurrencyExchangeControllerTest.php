@@ -1,14 +1,15 @@
 <?php
 
-namespace Tests\Application\Controller;
+namespace tests\Application\Controller;
 
-use Exception;
-use Money\Currency;
-use Money\Money;
 use PHPUnit\Framework\TestCase;
+use src\Domain\Service\CurrencyExchangeService;
 use src\Application\Controller\CurrencyExchangeController;
 use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Service\CurrencyExchangeService;
+use src\Domain\Entity\CurrencyExchangeDTO;
+use Money\Currency;
+use Money\Money;
+use Exception;
 
 /**
  * Class CurrencyExchangeControllerTest
@@ -26,6 +27,9 @@ class CurrencyExchangeControllerTest extends TestCase
         $this->currencyExchangeController = new CurrencyExchangeController($this->currencyExchangeServiceMock);
     }
 
+    /**
+     * @dataProvider conversionDataProvider
+     */
     #[\PHPUnit\Framework\Attributes\DataProvider('conversionDataProvider')]
     public function testConvert(string $fromCurrency, string $toCurrency, string $amount, bool $isBuyer, string $expectedResult)
     {
@@ -35,10 +39,12 @@ class CurrencyExchangeControllerTest extends TestCase
         $amountMoney = new Money($amountInSmallestUnit, $fromCurrencyObj);
         $currencyExchange = new CurrencyExchange($amountMoney, $fromCurrencyObj, $toCurrencyObj, $isBuyer);
 
+        $dto = new CurrencyExchangeDTO(new Money(bcmul($expectedResult, '100', 0), $toCurrencyObj), $expectedResult);
+
         $this->currencyExchangeServiceMock->expects($this->once())
             ->method('convert')
             ->with($currencyExchange)
-            ->willReturn($expectedResult);
+            ->willReturn($dto);
 
         $result = $this->currencyExchangeController->convert($fromCurrency, $toCurrency, $amount, $isBuyer);
 
@@ -48,10 +54,10 @@ class CurrencyExchangeControllerTest extends TestCase
     public static function conversionDataProvider(): array
     {
         return [
-            'Client selling 100 EUR for GBP' => ['EUR', 'GBP', '100', false, '158.35'],
-            'Client buying 100 GBP for EUR' => ['GBP', 'EUR', '100', true, '152.78'],
-            'Client selling 100 GBP for EUR' => ['GBP', 'EUR', '100', false, '155.86'],
-            'Client buying 100 EUR for GBP' => ['EUR', 'GBP', '100', true, '155.21'],
+            'Customer sells 100 EUR for GBP' => ['EUR', 'GBP', '100', false, '158.35'],
+            'Customer buys 100 GBP with EUR' => ['GBP', 'EUR', '100', true, '152.78'],
+            'Customer sells 100 GBP for EUR' => ['GBP', 'EUR', '100', false, '155.86'],
+            'Customer buys 100 EUR with GBP' => ['EUR', 'GBP', '100', true, '155.21'],
         ];
     }
 

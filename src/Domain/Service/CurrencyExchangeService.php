@@ -2,13 +2,15 @@
 
 namespace src\Domain\Service;
 
+use src\Domain\Entity\CurrencyExchange;
+use src\Domain\Entity\CurrencyExchangeDTO;
+use src\Domain\Repository\ExchangeRateRepository;
+use src\Domain\Repository\FeePercentageRepository;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
 use Money\Exchange\FixedExchange;
 use Money\Formatter\DecimalMoneyFormatter;
 use Money\Money;
-use src\Domain\Entity\CurrencyExchange;
-use src\Domain\Repository\ExchangeRateRepository;
 
 /**
  * Class CurrencyExchangeService
@@ -18,20 +20,23 @@ use src\Domain\Repository\ExchangeRateRepository;
 class CurrencyExchangeService
 {
     private ExchangeRateRepository $exchangeRateRepository;
+    private FeePercentageRepository $feePercentageRepository;
 
-    public function __construct(ExchangeRateRepository $exchangeRateRepository)
+    public function __construct(ExchangeRateRepository $exchangeRateRepository, FeePercentageRepository $feePercentageRepository)
     {
         $this->exchangeRateRepository = $exchangeRateRepository;
+        $this->feePercentageRepository = $feePercentageRepository;
     }
 
-    public function convert(CurrencyExchange $currencyExchange): string
+    public function convert(CurrencyExchange $currencyExchange): CurrencyExchangeDTO
     {
         $exchangeRate = $this->getExchangeRate($currencyExchange);
         $converter = $this->getConverter($currencyExchange, $exchangeRate);
         $moneyWithoutFee = $this->convertMoney($converter, $currencyExchange);
         $finalAmount = $this->applyFee($moneyWithoutFee, $currencyExchange->isBuyer());
+        $formattedAmount = $this->formatMoney($finalAmount);
 
-        return $this->formatMoney($finalAmount);
+        return new CurrencyExchangeDTO($finalAmount, $formattedAmount);
     }
 
     private function getExchangeRate(CurrencyExchange $currencyExchange): string
@@ -43,8 +48,8 @@ class CurrencyExchangeService
     {
         $exchange = new FixedExchange([
             $currencyExchange->getFromCurrency()->getCode() => [
-                $currencyExchange->getToCurrency()->getCode() => (string)$exchangeRate
-            ]
+                $currencyExchange->getToCurrency()->getCode() => $exchangeRate,
+            ],
         ]);
 
         $currencies = new ISOCurrencies();
@@ -58,7 +63,10 @@ class CurrencyExchangeService
 
     private function applyFee(Money $moneyWithoutFee, bool $isBuyer): Money
     {
-        list($buyerAmount, $sellerAmount) = $moneyWithoutFee->allocate([99, 1]);
+        $buyerFee = $this->feePercentageRepository->getBuyerFeePercentage();
+        $sellerFee = $this->feePercentageRepository->getSellerFeePercentage();
+        list($buyerAmount, $sellerAmount) = $moneyWithoutFee->allocate([$buyerFee, $sellerFee]);
+
         return $isBuyer ? $buyerAmount : $moneyWithoutFee->add($sellerAmount);
     }
 
